@@ -1,2 +1,2 @@
-This contains code used for the statistical analysis for the epidemiological analysis described here: https://www.researchsquare.com/article/rs-7087230/v1 using files accessed through the remote IARC Scietific IT platform.
+This contains code used for the statistical analysis for the epidemiological analysis described here: https://www.researchsquare.com/article/rs-7087230/v1 using files accessed through the remote IARC Scientific IT platform.
 All R scripts were developed in R version 4.3.1. Scripts are numbered to reflect the order they should be run. There is a Shell script for calling the python package organage script outside the server, which needs to be run before R script number 4. A zip file is also uploaded that contains all the scripts together
