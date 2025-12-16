@@ -46,7 +46,7 @@ all_results_imp[["t2d"]]<-Res_t2d_imp
 all_results_imp[["deaths"]]<-Res_deaths_imp
 
 ###make Results by clock ####
-clock_names=c("Conventional","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Consensus")
+clock_names=c("Oh","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Global")
 
 outcomenames<-c("All cause dementia", "Alzheimer's disease","Parkinson's disease","Amyotrophic lateral sclerosis","Cardiovascular Disease","Coronary heart disease","Stroke","Type 2 diabetes","All-cause mortality","Any cancer","Bladder cancer","Breast cancer","Peri-menopausal breast cancer","Post-menopausal breast cancer","Pre-menopausal breast cancer","Colon-rectum cancer","Colon cancer","Rectum cancer","Endometrial cancer","Glioma cancer","Kidney cancer","Liver cancer","Lung cancer","Lymphoma","Melanoma cancer","Ovary cancer","Pancreas cancer","Prostate cancer","Stomach cancer","Thyroid cancer","Upper aero-digestive tract cancer", "UADT (non-Oesophageal) ","UADT (Oesophageal) Cancer", "Non-Hodgkins Lymphoma", "Hodgkins Lymphoma")
 outcomes=c("DEM", "AD","PD","ALS","cvd","chd","stroke", "t2d","deaths","cncr_mal_anyc","cncr_mal_blad", "cncr_mal_brea","cncr_mal_brea_peri","cncr_mal_brea_post","cncr_mal_brea_pre", "cncr_mal_clrt", "cncr_mal_clrt_colon", "cncr_mal_clrt_rectum", "cncr_mal_coru", "cncr_mal_glio", "cncr_mal_kidn", "cncr_mal_live", "cncr_mal_lung", "cncr_mal_lymp", "cncr_mal_mela", "cncr_mal_ovar", "cncr_mal_panc", "cncr_mal_pros", "cncr_mal_stom", "cncr_mal_thyr", "cncr_mal_uadt","cncr_mal_orophag","cncr_mal_esophag", "cncr_mal_nh_lymp", "cncr_mal_h_lymp")
@@ -72,12 +72,11 @@ for (clock_name in clock_names){
   
 }
 
-Oh<-all_clock_results[["Conventional"]]
-Oh$Clock<-"Oh"
-all_clock_results[["Oh"]]<-Oh
-remove(Oh)
+Conventional<-all_clock_results[["Oh"]] ### add results for Oh clock that are reffered to as "Conventional" for organ age presnetation
+Conventional$Clock<-"Conventional"
+all_clock_results[["Conventional"]]<-Conventional
 
-#adjusted all clock results
+##adjusted all clock results
 
 all_clock_results_adj = list()
 
@@ -100,10 +99,9 @@ for (clock_name in clock_names){
   
 }
 
-Oh<-all_clock_results_adj[["Conventional"]]
-Oh$Clock<-"Oh"
-all_clock_results_adj[["Oh"]]<-Oh
-remove(Oh)
+Conventional<-all_clock_results_adj[["Oh"]]
+Conventional$Clock<-"Conventional"
+all_clock_results_adj[["Conventional"]]<-Conventional
 
 #imputed all clcok results
 
@@ -128,10 +126,10 @@ for (clock_name in clock_names){
   
 }
 
-Oh<-all_clock_results_imp[["Conventional"]]
-Oh$Clock<-"Oh"
-all_clock_results_imp[["Oh"]]<-Oh
-remove(Oh)
+Conventional<-all_clock_results_imp[["Oh"]]
+Conventional$Clock<-"Conventional"
+all_clock_results_imp[["Conventional"]]<-Conventional
+remove(Conventional)
 
 ####
 ####clock performance########
@@ -140,13 +138,6 @@ setwd("/data/Epic/subprojects/Somalogic/work/Oliver")
 data_clocks=read.csv("output/data_clocks_new.csv")
 
 table(data_clocks$Organ)
-
-
-########rename clocks
-data_clocks$Organ[data_clocks$Organ=="Consensus"]<-"Global"
-data_clocks$Organ[data_clocks$Organ=="Conventional"]<-"Oh"
-
-clock_names=c("Oh","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Global")
 
 
 clockperformance<-matrix(NA, length(clock_names), 8)
@@ -204,7 +195,7 @@ for (clock_name in clock_names){
 ########################clock cor heat map#####
 
 AAmatrix<-as.data.frame(cbind(data_clocks$AgeGap_zscored[data_clocks$Organ=="Tanaka"],
-                              data_clocks$AgeGap_zscored[data_clocks$Organ=="Conventional"],
+                              data_clocks$AgeGap_zscored[data_clocks$Organ=="Oh"],
                               data_clocks$AgeGap_zscored[data_clocks$Organ=="Sathyan"],
                               data_clocks$AgeGap_zscored[data_clocks$Organ=="Lehallier"],
                               data_clocks$AgeGap_zscored[data_clocks$Organ=="Wang"]))
@@ -244,7 +235,7 @@ grid.draw(venn.plot)
 
 ###make heatmap of conclock-disease asociations####
 outcomenames.sh<-c("All cause dementia", "Alzheimer's disease","Parkinson's disease","Coronary heart disease","Stroke","Type 2 diabetes","All-cause mortality","Any cancer","Bladder cancer","Breast cancer","Colon cancer","Rectum cancer","Endometrial cancer","Glioma cancer","Kidney cancer","Liver cancer","Lung cancer","Lymphoma","Melanoma cancer","Ovary cancer","Pancreas cancer","Prostate cancer","Stomach cancer","Thyroid cancer","Upper aero-digestive tract cancer")
-con_clock_names=c("Tanaka","Lehallier", "Sathyan","Conventional","Wang", "Consensus")
+con_clock_names=c("Tanaka","Lehallier", "Sathyan","Oh","Wang", "Global")
 
 clockheatmap<- as.data.frame(all_clock_results_imp[[con_clock_names[1]]])
 rownames(clockheatmap)<-clockheatmap$outcomenames
@@ -261,7 +252,7 @@ for(i in 2:length(con_clock_names)){
 
 
 clockheatmap<-clockheatmap[outcomenames.sh,]
-names(clockheatmap) <-c("Tanaka","Lehallier", "Sathyan","Oh","Wang", "Global")
+names(clockheatmap) <-con_clock_names
 
 clockheatpval<- as.data.frame(all_clock_results_imp[[con_clock_names[1]]])
 rownames(clockheatpval)<-clockheatpval$outcomenames
@@ -342,8 +333,6 @@ plottableB=all_results_imp[[outcomes[i]]]
 plottableB=plottableB[plottableB$Clock %in% con_clock_names,]
 plottableB=plottableB[match(con_clock_names,plottableB$Clock ),]
 plottable=cbind(plottableA, plottableB)
-plottable$Clock[plottable$Clock== "Conventional"]<-"Oh"
-plottable$Clock[plottable$Clock== "Consensus"]<-"Global"
 names(plottable)[11:20]<-paste0(names(plottable)[1:10], "_adj")
 plottable<-plottable[,c(-10,-20)]
 
@@ -785,10 +774,7 @@ for (clock_name in clock_names){
   
 }
 
-Oh<-all_clock_results_imp_5eclu[["Conventional"]]
-Oh$Clock<-"Oh"
-all_clock_results_imp_5eclu[["Oh"]]<-Oh
-remove(Oh)
+
 
 ####
 #############Sensitvity exlude first 2 year##############################################
@@ -844,10 +830,6 @@ for (clock_name in clock_names){
   
 }
 
-Oh<-all_clock_results_2eclu[["Conventional"]]
-Oh$Clock<-"Oh"
-all_clock_results_2eclu[["Oh"]]<-Oh
-remove(Oh)
 
 
 #imputed all clcok results
@@ -873,10 +855,6 @@ for (clock_name in clock_names){
   
 }
 
-Oh<-all_clock_results_imp_2eclu[["Conventional"]]
-Oh$Clock<-"Oh"
-all_clock_results_imp_2eclu[["Oh"]]<-Oh
-remove(Oh)
 
 ########
 #############Sensitivity exclude ever smokers##############################################
@@ -932,10 +910,6 @@ for (clock_name in clock_names){
   
 }
 
-Oh<-all_clock_results_neversmokers[["Conventional"]]
-Oh$Clock<-"Oh"
-all_clock_results_neversmokers[["Oh"]]<-Oh
-remove(Oh)
 
 
 #imputed all clcok results
