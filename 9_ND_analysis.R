@@ -10,7 +10,7 @@ data_clocks=data_clocks %>% mutate(Sex_F=as.factor(Sex_F))
 
 
 
-clock_names=c("Conventional","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Consensus")
+clock_names=c("Oh","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Global")
 
 
 ##readdata
@@ -82,21 +82,9 @@ DF_AD_cleaned$ageevent<-(as.numeric(DF_AD_cleaned$analysis2_EFU-DF_AD_cleaned$Da
 DF_AD_cleaned$ageevent<-DF_AD_cleaned$ageevent+DF_AD_cleaned$Age_Start
 names(DF_AD_cleaned)<-c("idepic", "sex","age", "age_cat_5","Date_Start", "center", "cvd_t2d_coh", "analysis2_EFU", "indevent",covars, "ageevent")
 
-###look at excluding 5/2 yer
-DF_AD_cleaned$fut<-DF_AD_cleaned$ageevent-DF_AD_cleaned$age
-hist(DF_AD_cleaned$fut[DF_AD_cleaned$indevent==1])
-DF_AD_cleaned$pre_5_year<-ifelse(DF_AD_cleaned$fut <= 5,1,0)
-boxplot(DF_AD_cleaned$fut~DF_AD_cleaned$pre_5_year )
-table(DF_AD_cleaned$indevent,DF_AD_cleaned$pre_5_year )
-
-DF_AD_cleaned$pre_2_year<-ifelse(DF_AD_cleaned$fut <= 2,1,0)
-boxplot(DF_AD_cleaned$fut~DF_AD_cleaned$pre_2_year )
-table(DF_AD_cleaned$indevent,DF_AD_cleaned$pre_2_year )
 
 
-
-
-########################
+###########Prentice weighting for main analysis###
 
 DF_AD_cleaned1<-DF_AD_cleaned[DF_AD_cleaned$cvd_t2d_coh==0 & DF_AD_cleaned$indevent==1,]
 DF_AD_cleaned1$age <- DF_AD_cleaned1$ageevent - 1e-4 ####only for Prentice weights
@@ -106,8 +94,10 @@ remove(DF_AD_cleaned)
 DF_AD_cleaned=rbind(DF_AD_cleaned1,DF_AD_cleaned2,DF_AD_cleaned3)
 remove(DF_AD_cleaned1,DF_AD_cleaned2,DF_AD_cleaned3)
 
-########exclude pre 5 /2 year####
-
+########exclude pre 5 /2 year in sensitivity analysis only####
+#DF_AD_cleaned$fut<-DF_AD_cleaned$ageevent-DF_AD_cleaned$age
+#DF_AD_cleaned$pre_5_year<-ifelse(DF_AD_cleaned$fut <= 5,1,0)
+#DF_AD_cleaned$pre_2_year<-ifelse(DF_AD_cleaned$fut <= 2,1,0)
 #DF_AD_cleaneda<-DF_AD_cleaned[DF_AD_cleaned$indevent==1,]
 ##DF_AD_cleaneda<-DF_AD_cleaneda[DF_AD_cleaneda$pre_5_year==0,]
 #DF_AD_cleaneda<-DF_AD_cleaneda[DF_AD_cleaneda$pre_2_year==0,]
@@ -226,26 +216,16 @@ print(Res_AD_full[order(Res_AD_full$pval),])
 print(Res_AD_60[order(Res_AD_60$pval),])
 print(Res_AD_adj[order(Res_AD_adj$pval),])
 print(Res_AD_imp[order(Res_AD_imp$pval),])
-#prepare DEM dataset
+
+####prepare Dementia dataset####
 
 DF_DEM_cleaned<-DF_ND[!is.na(DF_ND$analysis3), c("Idepic", "Sex","Age_Start", "Age_Start_cat_5","Date_Start", "Center", "Cvd_T2d_Coh", "analysis3_EFU", "analysis3",covars)]
 DF_DEM_cleaned$ageevent<-(as.numeric(DF_DEM_cleaned$analysis3_EFU-DF_DEM_cleaned$Date_Start))/365.25
 DF_DEM_cleaned$ageevent<-DF_DEM_cleaned$ageevent+DF_DEM_cleaned$Age_Start
 names(DF_DEM_cleaned)<-c("idepic", "sex","age", "age_cat_5","Date_Start", "center", "cvd_t2d_coh", "analysis3_EFU", "indevent",covars, "ageevent")
 
-###look at exlcuding 5 yer
-DF_DEM_cleaned$fut<-DF_DEM_cleaned$ageevent-DF_DEM_cleaned$age
-hist(DF_DEM_cleaned$fut[DF_DEM_cleaned$indevent==1])
-DF_DEM_cleaned$pre_5_year<-ifelse(DF_DEM_cleaned$fut <= 5,1,0)
-boxplot(DF_DEM_cleaned$fut~DF_DEM_cleaned$pre_5_year )
-table(DF_DEM_cleaned$indevent,DF_DEM_cleaned$pre_5_year )
 
-DF_DEM_cleaned$pre_2_year<-ifelse(DF_DEM_cleaned$fut <= 2,1,0)
-boxplot(DF_DEM_cleaned$fut~DF_DEM_cleaned$pre_2_year )
-table(DF_DEM_cleaned$indevent,DF_DEM_cleaned$pre_2_year )
-
-
-##############
+##############Prentice weighting for main analysis
 
 DF_DEM_cleaned1<-DF_DEM_cleaned[DF_DEM_cleaned$cvd_t2d_coh==0 & DF_DEM_cleaned$indevent==1,]
 DF_DEM_cleaned1$age <- DF_DEM_cleaned1$ageevent - 1e-4
@@ -255,7 +235,10 @@ remove(DF_DEM_cleaned)
 DF_DEM_cleaned=rbind(DF_DEM_cleaned1,DF_DEM_cleaned2,DF_DEM_cleaned3)
 remove(DF_DEM_cleaned1,DF_DEM_cleaned2,DF_DEM_cleaned3)
 
-########exclude pre 5 / 2year####
+########exclude pre 5 / 2year in sensitivity analysis only####
+#DF_DEM_cleaned$fut<-DF_DEM_cleaned$ageevent-DF_DEM_cleaned$age
+#DF_DEM_cleaned$pre_5_year<-ifelse(DF_DEM_cleaned$fut <= 5,1,0)
+#DF_DEM_cleaned$pre_2_year<-ifelse(DF_DEM_cleaned$fut <= 2,1,0)
 
 #DF_DEM_cleaneda<-DF_DEM_cleaned[DF_DEM_cleaned$indevent==1,]
 ##DF_DEM_cleaneda<-DF_DEM_cleaneda[DF_DEM_cleaneda$pre_5_year==0,]
@@ -294,19 +277,10 @@ DF_PD_cleaned$ageevent<-(as.numeric(DF_PD_cleaned$analysis4_EFU-DF_PD_cleaned$Da
 DF_PD_cleaned$ageevent<-DF_PD_cleaned$ageevent+DF_PD_cleaned$Age_Start
 names(DF_PD_cleaned)<-c("idepic", "sex","age", "age_cat_5","Date_Start", "center", "cvd_t2d_coh", "analysis4_EFU", "indevent",covars, "ageevent")
 
-###look at exlcuding 5 yer
-DF_PD_cleaned$fut<-DF_PD_cleaned$ageevent-DF_PD_cleaned$age
-hist(DF_PD_cleaned$fut[DF_PD_cleaned$indevent==1])
-DF_PD_cleaned$pre_5_year<-ifelse(DF_PD_cleaned$fut <= 5,1,0)
-boxplot(DF_PD_cleaned$fut~DF_PD_cleaned$pre_5_year )
-table(DF_PD_cleaned$indevent,DF_PD_cleaned$pre_5_year )
-
-DF_PD_cleaned$pre_2_year<-ifelse(DF_PD_cleaned$fut <= 2,1,0)
-boxplot(DF_PD_cleaned$fut~DF_PD_cleaned$pre_2_year )
-table(DF_PD_cleaned$indevent,DF_PD_cleaned$pre_2_year )
 
 
-##############
+
+##############Prentie weighting for main analysis#####
 
 DF_PD_cleaned1<-DF_PD_cleaned[DF_PD_cleaned$cvd_t2d_coh==0 & DF_PD_cleaned$indevent==1,]
 DF_PD_cleaned1$age <- DF_PD_cleaned1$ageevent - 1e-4
@@ -316,7 +290,10 @@ remove(DF_PD_cleaned)
 DF_PD_cleaned=rbind(DF_PD_cleaned1,DF_PD_cleaned2,DF_PD_cleaned3)
 remove(DF_PD_cleaned1,DF_PD_cleaned2,DF_PD_cleaned3)
 
-########exclu pre 5####
+########exclu pre 5 or 2 year for sensitivity only ####
+#DF_PD_cleaned$fut<-DF_PD_cleaned$ageevent-DF_PD_cleaned$age
+#DF_PD_cleaned$pre_5_year<-ifelse(DF_PD_cleaned$fut <= 5,1,0)
+#DF_PD_cleaned$pre_2_year<-ifelse(DF_PD_cleaned$fut <= 2,1,0)
 
 #DF_PD_cleaneda<-DF_PD_cleaned[DF_PD_cleaned$indevent==1,]
 ##DF_PD_cleaneda<-DF_PD_cleaneda[DF_PD_cleaneda$pre_5_year==0,]
