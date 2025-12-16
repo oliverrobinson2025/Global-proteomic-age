@@ -35,9 +35,7 @@ data_clocks=read.csv("output/data_clocks_new.csv")
 data_clocks=data_clocks %>% mutate(Sex_F=as.factor(Sex_F))
 table(data_clocks$Organ)
 
-
-
-clock_names=c("Conventional","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Consensus")
+clock_names=c("Oh","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Global")
 
 ##check subtypes
 table(db$typ_tumo_lymp)
@@ -54,15 +52,11 @@ table(db$cncr_mal_esophag)
 db$cncr_mal_orophag<-ifelse(db$typ_tumo_uadt== "01-UADT squamous cell carcinoma"|db$typ_tumo_uadt== "02-UADT other",1,0)
 table(db$cncr_mal_orophag)
 
-####look at followup time for exclusion
-hist(db$cancer_fut[db$cncr_mal_anyc==1])
+####look at followup time for exclusion of first 2 or 5 years of events in sensitivity analysis only
+db$cancer_fut<-db$age_exit_cancer_1st-db$age_recr
 db$pre_5_year<-ifelse(db$cancer_fut <= 5,1,0)
-boxplot(db$cancer_fut~db$pre_5_year )
-table(db$cncr_mal_anyc,db$pre_5_year )
-
 db$pre_2_year<-ifelse(db$cancer_fut <= 2,1,0)
-boxplot(db$cancer_fut~db$pre_2_year )
-table(db$cncr_mal_anyc,db$pre_2_year )
+
 
 ####cox cancer
 cancertypes=c("cncr_mal_anyc","cncr_mal_blad", "cncr_mal_brea","cncr_mal_brea_peri",
@@ -80,13 +74,13 @@ for(cancertype in cancertypes){
 
 
 db1<-db[db$cvd_t2d_coh==0 & db[,cancertype]==1,]
-db1$age_recr <- db1$age_exit_cancer_1st - 1e-4
+db1$age_recr <- db1$age_exit_cancer_1st - 1e-4 ## Prentice weighting
 db2<-db[db$cvd_t2d_coh==1 & db[,cancertype]==1,]
 db3<-db[db$cvd_t2d_coh==1 & db[,cancertype]==0,]
 db.spec=rbind(db1,db2,db3)
 remove(db1,db2,db3)
   
-  ###exclude pre 5 or 2 year
+  ###exclude pre 5 or 2 year in sensitivity analysis
   
   #dba<-db[db[,cancertype]==1,]
   ##dba<-dba[dba$pre_5_year==0,]
@@ -117,7 +111,7 @@ for (clock_name in clock_names){
   data_plot=data_clocks[which(data_clocks$Organ==clock_name),]
   merged=merge(x=db.spec,y=data_plot,by="idepic")
   
-  #####exclude ever smokers
+  #####exclude ever smokers in sensitivity analysis
  # merged<-merged[merged$smoke_stat=="Never",]
   #############
   
@@ -284,7 +278,7 @@ table(db$cntr_f)
 db$cntr_f<-droplevels(db$cntr_f)
 table(db$country)
 db$country<-droplevels(db$country)
-db$cancer_fut<-db$age_exit_cancer_1st-db$age_blood
+db$cancer_fut<-db$age_exit_cancer_1st-db$age_recru
 summary(db$cancer_fut)
 label(db$cancer_fut) <- "Follow up time cancer (yrs)"
 db$l_school[db$l_school=="Not specified"]<-NA
