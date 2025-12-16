@@ -53,7 +53,7 @@ remove(db1,db2,db3)
 
 ###run below instead for sensitivity analysis excluding first 5/2 years of events#
 ####look at followup time for exclusion
-#db$cvd_fut<-db$age_exit_cvd_1-db$age_blood
+#db$cvd_fut<-db$age_exit_cvd_1-db$age_recr
 #db$pre_5_year<-ifelse(db$cvd_fut <= 5,1,0)
 #db$pre_2_year<-ifelse(db$cvd_fut <= 2,1,0)
 
@@ -194,7 +194,7 @@ db.spec=rbind(db1,db2,db3)
 remove(db1,db2,db3)
 
 #############exclude pre 5 or 2 yr as sensitivity analysis####
-#db$chd_fut<-db$age_exit_chd_1-db$age_blood
+#db$chd_fut<-db$age_exit_chd_1-db$age_recr
 #db$pre_5_year<-ifelse(db$chd_fut <= 5,1,0)
 #db$pre_2_year<-ifelse(db$chd_fut <= 2,1,0)
 #dba<-db[db$chd_1_status==1,]
@@ -331,7 +331,7 @@ db.spec=rbind(db1,db2,db3)
 remove(db1,db2,db3)
 
 ###exlu pre 5 or 2 year events for sensitivity analysis####
-#db$stroke_fut<-db$age_exit_stroke_1-db$age_blood
+#db$stroke_fut<-db$age_exit_stroke_1-db$age_recr
 #db$pre_5_year<-ifelse(db$stroke_fut <= 5,1,0)
 #db$pre_2_year<-ifelse(db$stroke_fut <= 2,1,0)
 #dba<-db[db$stroke_1_status==1,]
@@ -396,36 +396,6 @@ for (clock_name in clock_names){
 
 Res_stroke <- Res_stroke %>% mutate(FDR = p.adjust(pval, method = "BH"))
 Res_stroke_60 <- Res_stroke_60 %>% mutate(FDR = p.adjust(pval, method = "BH"))
-
-FUT=merged$age_exit_stroke_1-merged$age_recr
-mod_age<- coxph(Surv(FUT, stroke_1_status) ~ scale(age_recr) + strata( center, sex.x) + cluster(idepic),
-                data= merged)
-
-agetib <- tibble(Clock= "Chronological", Asso = summary(mod_age)$coef[1, 'exp(coef)'],
-                 beta = summary(mod_age)$coef[1, 'coef'],
-                 pval = summary(mod_age)$coef[1, 'Pr(>|z|)'],
-                 SE= summary(mod_age)$coef[1, 'se(coef)'] ,
-                 LCL =exp(confint(mod_age)[1]),
-                 UCL =exp(confint(mod_age)[2]),
-                 n =mod_age$n ,nevent=mod_age$nevent,
-                 FDR=NA)
-
-FUT=FUT[which(merged$age_recr >60)]
-mod_age_60<- coxph(Surv(FUT, stroke_1_status) ~ scale(age_recr) + strata( center, sex.x) + cluster(idepic),
-                   data= merged[which(merged$age_recr >60),])
-
-agetib_60 <- tibble(Clock= "Chronological", Asso = summary(mod_age_60)$coef[1, 'exp(coef)'],
-                    beta = summary(mod_age_60)$coef[1, 'coef'],
-                    pval = summary(mod_age_60)$coef[1, 'Pr(>|z|)'],
-                    SE= summary(mod_age_60)$coef[1, 'se(coef)'] ,
-                    LCL =exp(confint(mod_age_60)[1]),
-                    UCL =exp(confint(mod_age_60)[2]),
-                    n =mod_age_60$n ,nevent=mod_age_60$nevent,
-                    FDR=NA)
-
-
-Res_stroke <- bind_rows(Res_stroke, agetib)
-Res_stroke_60 <- bind_rows(Res_stroke_60, agetib_60)
 
 #########risk factor adjusted stroke#############
 
@@ -501,12 +471,12 @@ table(db$cntr_f)
 db$cntr_f<-droplevels(db$cntr_f)
 table(db$country)
 db$country<-droplevels(db$country)
-db$cvd_fut<-db$age_exit_cvd_1-db$age_blood
+db$cvd_fut<-db$age_exit_cvd_1-db$age_recr
 summary(db$cvd_fut)
 label(db$cvd_fut) <- "Follow up time CVD (yrs)"
-db$chd_fut<-db$age_exit_chd_1-db$age_blood
+db$chd_fut<-db$age_exit_chd_1-db$age_recr
 label(db$chd_fut) <- "Follow up time CHD (yrs)"
-db$stroke_fut<-db$age_exit_stroke_1-db$age_blood
+db$stroke_fut<-db$age_exit_stroke_1-db$age_recr
 label(db$stroke_fut) <- "Follow up time stroke (yrs)"
 label(db$cntr_f) <- "Centre"
 
