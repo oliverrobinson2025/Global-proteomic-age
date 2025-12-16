@@ -262,10 +262,6 @@ for(cancertype in cancertypes){
 
 #######
 
-#save(cancer_results,cancer_results_60, cancer_results_adj, cancer_results_imp,file="output/ClockCancerResults.Rdata" )
-#save(cancer_results,cancer_results_60, cancer_results_adj, cancer_results_imp,file="output/ClockCancerResults_QC.Rdata" )
-#save(cancer_results,cancer_results_60, cancer_results_adj, cancer_results_imp,file="output/ClockCancerResults_QC_v2.Rdata" )
-#save(cancer_results,cancer_results_60, cancer_results_adj, cancer_results_imp,file="output/ClockCancerResults_QC_v2_binder.Rdata" )
 #save(cancer_results,cancer_results_60, cancer_results_adj, cancer_results_imp,file="output/ClockCancerResults_QC_v2_con2.Rdata" )
 #save(cancer_results,cancer_results_60, cancer_results_adj, cancer_results_imp,file="output/ClockCancerResults_QC_v2_con2_pre5excl.Rdata" )
 #save(cancer_results,cancer_results_60, cancer_results_adj, cancer_results_imp,file="output/ClockCancerResults_QC_v2_con2_neversmokers.Rdata" )
