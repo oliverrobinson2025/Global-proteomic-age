@@ -1,13 +1,14 @@
 setwd("/data/Epic/subprojects/Somalogic/work/Oliver")
-MetaData_Soma_MoreComprehensive <- readRDS("/data/Epic/subprojects/Somalogic/work/Vivian/Phase2/Data/ForAnalyses/MetaData_Soma_MoreComprehensive.rds")
-Input_prot_clocks_all <- read_csv("/data/Epic/subprojects/Somalogic/work/Oliver/Input_prot_clocks_all_5K.csv")#tests revealed that the %K lifting did not change lehallier results (probably due to scaling)
-Input_prot_clocks_all_age_sex <- read_csv("/data/Epic/subprojects/Somalogic/work/Oliver/Input_prot_clocks_all_age_sex.csv")
-Input_prot_clocks_all$ID[1:5]
+MetaData_Soma_MoreComprehensive <- readRDS("/data/Epic/subprojects/Somalogic/work/Vivian/Phase2/Data/ForAnalyses/MetaData_Soma_MoreComprehensive.rds")###protein meta data file
+Input_prot_clocks_all <- read_csv("/data/Epic/subprojects/Somalogic/work/Oliver/Input_prot_clocks_all_5K.csv")### protein intensity file (prepared in script 1)
+Input_prot_clocks_all_age_sex <- read_csv("/data/Epic/subprojects/Somalogic/work/Oliver/Input_prot_clocks_all_age_sex.csv") ### age and sex file (prepared in script 1)
 
+Input_prot_clocks_all$ID[1:5]###check matching order
 Input_prot_clocks_all_age_sex$ID[1:5]
 id_order<-match(Input_prot_clocks_all$ID, Input_prot_clocks_all_age_sex$ID)
 Input_prot_clocks_all_age_sex<-Input_prot_clocks_all_age_sex[id_order,]
 
+####Lehalier age####
 
 somadata<-Input_prot_clocks_all[,MetaData_Soma_MoreComprehensive$SeqId]
 names(somadata)<-MetaData_Soma_MoreComprehensive$AptName
@@ -396,7 +397,7 @@ mean(abs(LehallierAge- Input_prot_clocks_all_age_sex$Age))
   
   detach(somadata)
   
-  ##########ARIC
+  ##########Wang age #####
 somadata<-Input_prot_clocks_all[,MetaData_Soma_MoreComprehensive$SeqId]
 names(somadata)<-MetaData_Soma_MoreComprehensive$AptName
 somadata<-log2(somadata)
@@ -1199,7 +1200,7 @@ plot(ARICAge, Input_prot_clocks_all_age_sex$Age)
 mean(abs(ARICAge- Input_prot_clocks_all_age_sex$Age))
 detach(somadata) 
 
-###Tanaka age
+###Tanaka age####
 somadata<-Input_prot_clocks_all[,MetaData_Soma_MoreComprehensive$SeqId]
 names(somadata)<-MetaData_Soma_MoreComprehensive$AptName
 somadata<-log(somadata)
@@ -1247,7 +1248,7 @@ TanakaAge<-90.2171267255279+
   (2.01114798612088*seq.3600.2)+
   (0.180106849270305*seq.3607.71)+
   (-3.57042500712505*seq.3624.3)+
- # (3.93509369218138*seq.3707.12)+#Not available...
+ # (3.93509369218138*seq.3707.12)+
   (0.570760169422428*seq.4141.79)+
   (-2.16268275750233*seq.4145.58)+
   (-0.905119676839827*seq.4155.3)+
@@ -1290,63 +1291,7 @@ mean(abs(TanakaAge- Input_prot_clocks_all_age_sex$Age))
 detach(somadata) 
 
 
-
-setwd("/data/Epic/subprojects/Somalogic/work/Oliver")
-data_clocks=read.csv("output/Results_EPIC_ALL_ageblood_organage.csv") 
-
-
-
-#####calculate age gaps using Oh method...
-Predicted_Age<-LehallierAge
-cor.test(Predicted_Age, Input_prot_clocks_all_age_sex$Age)
-testlowess<- lowess(Input_prot_clocks_all_age_sex$Age,Predicted_Age, f = 2/3, iter = 30, )
-lfun<-approxfun(testlowess)
-yhat_lowess<-lfun(Input_prot_clocks_all_age_sex$Age)
-AgeGap<-Predicted_Age-yhat_lowess
-AgeGap_zscored<-scale(AgeGap)
-
-data_clocks_L<-cbind(Input_prot_clocks_all_age_sex, Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
-data_clocks_L$Organ<-"Lehallier"
-
-id_order<-match(data_clocks$ID[data_clocks$Organ=="Conventional"], data_clocks_L$ID)
-data_clocks_L<-data_clocks_L[id_order,]
-
-data_clocks_new<-rbind(data_clocks, data_clocks_L)
-
-Predicted_Age<-ARICAge
-cor.test(Predicted_Age, Input_prot_clocks_all_age_sex$Age)
-testlowess<- lowess(Input_prot_clocks_all_age_sex$Age,Predicted_Age, f = 2/3, iter = 30, )
-lfun<-approxfun(testlowess)
-yhat_lowess<-lfun(Input_prot_clocks_all_age_sex$Age)
-AgeGap<-Predicted_Age-yhat_lowess
-AgeGap_zscored<-scale(AgeGap)
-
-data_clocks_L<-cbind(Input_prot_clocks_all_age_sex, Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
-data_clocks_L$Organ<-"Wang"
-
-data_clocks_L<-data_clocks_L[id_order,]
-
-data_clocks_new<-rbind(data_clocks_new, data_clocks_L)
-
-Predicted_Age<-TanakaAge
-cor.test(Predicted_Age, Input_prot_clocks_all_age_sex$Age)
-testlowess<- lowess(Input_prot_clocks_all_age_sex$Age,Predicted_Age, f = 2/3, iter = 30, )
-lfun<-approxfun(testlowess)
-yhat_lowess<-lfun(Input_prot_clocks_all_age_sex$Age)
-AgeGap<-Predicted_Age-yhat_lowess
-AgeGap_zscored<-scale(AgeGap)
-
-data_clocks_L<-cbind(Input_prot_clocks_all_age_sex, Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
-data_clocks_L$Organ<-"Tanaka"
-
-data_clocks_L<-data_clocks_L[id_order,]
-
-data_clocks_new<-rbind(data_clocks_new, data_clocks_L)
-
-remove(data_clocks_L)
-
-###############
-#####Sathyan age###
+#####Sathyan age####
 
 somadata<-Input_prot_clocks_all[,MetaData_Soma_MoreComprehensive$SeqId]
 names(somadata)<-MetaData_Soma_MoreComprehensive$AptName
@@ -1517,12 +1462,81 @@ SathAge<-46.82821845+
   (2.2351961851*seq.8956.96)+
   (2.4729210468*seq.6392.7)+
   (4.5743299851*seq.3045.72)
-  
+
 
 cor.test(SathAge, Input_prot_clocks_all_age_sex$Age)
 plot(SathAge, Input_prot_clocks_all_age_sex$Age)  
 mean(abs(SathAge- Input_prot_clocks_all_age_sex$Age))
 detach(somadata) 
+
+############import organage output#####
+data_clocks=read.csv("output/Results_EPIC_ALL_ageblood_organage.csv") ####(prepared in script 2)
+data_clocks<-data_clocks[data_clocks$idepic   %in% viv_incl_ids, ]
+
+
+data_clocks[data_clocks$idepic   %in% viv_incl_ids, ]
+
+table(data_clocks$Organ)#should have 25 organs
+
+data_clocks_new<-data_clocks
+
+testlowess<- lowess(data_clocks$Age[data_clocks$Organ=="Conventional"],data_clocks$Predicted_Age[data_clocks$Organ=="Conventional"], f = 2/3, iter = 30, )
+lfun<-approxfun(testlowess)
+data_clocks_new$yhat_lowess[data_clocks$Organ=="Conventional"]<-lfun(data_clocks$Age[data_clocks$Organ=="Conventional"])
+data_clocks_new$AgeGap[data_clocks$Organ=="Conventional"]<-data_clocks$Predicted_Age[data_clocks$Organ=="Conventional"]-data_clocks_new$yhat_lowess[data_clocks$Organ=="Conventional"]
+data_clocks_new$AgeGap_zscored[data_clocks$Organ=="Conventional"]<-scale(data_clocks_new$AgeGap[data_clocks$Organ=="Conventional"])
+
+data_clocks_new$Organ[data_clocks$Organ=="Conventional"]<-"Oh"
+
+
+plot(data_clocks$AgeGap[data_clocks$Organ=="Conventional"], data_clocks_new$AgeGap[data_clocks_new$Organ=="Oh"])
+
+
+table(data_clocks_new$Organ)#should have 25 organs
+
+###Calulate agegaps and add to file####
+Predicted_Age<-LehallierAge
+testlowess<- lowess(Input_prot_clocks_all_age_sex$Age,Predicted_Age, f = 2/3, iter = 30, )
+lfun<-approxfun(testlowess)
+yhat_lowess<-lfun(Input_prot_clocks_all_age_sex$Age)
+AgeGap<-Predicted_Age-yhat_lowess
+AgeGap_zscored<-scale(AgeGap)
+
+data_clocks_L<-cbind(Input_prot_clocks_all_age_sex, Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
+data_clocks_L$Organ<-"Lehallier"
+
+id_order<-match(data_clocks_new$ID[data_clocks_new$Organ=="Oh"], data_clocks_L$ID)##just a check for order -should not be needed if checked at beginning
+data_clocks_L<-data_clocks_L[id_order,]
+
+data_clocks_new<-rbind(data_clocks_new, data_clocks_L)
+
+Predicted_Age<-ARICAge
+testlowess<- lowess(Input_prot_clocks_all_age_sex$Age,Predicted_Age, f = 2/3, iter = 30, )
+lfun<-approxfun(testlowess)
+yhat_lowess<-lfun(Input_prot_clocks_all_age_sex$Age)
+AgeGap<-Predicted_Age-yhat_lowess
+AgeGap_zscored<-scale(AgeGap)
+
+data_clocks_L<-cbind(Input_prot_clocks_all_age_sex, Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
+data_clocks_L$Organ<-"Wang"
+
+data_clocks_L<-data_clocks_L[id_order,]
+
+data_clocks_new<-rbind(data_clocks_new, data_clocks_L)
+
+Predicted_Age<-TanakaAge
+testlowess<- lowess(Input_prot_clocks_all_age_sex$Age,Predicted_Age, f = 2/3, iter = 30, )
+lfun<-approxfun(testlowess)
+yhat_lowess<-lfun(Input_prot_clocks_all_age_sex$Age)
+AgeGap<-Predicted_Age-yhat_lowess
+AgeGap_zscored<-scale(AgeGap)
+
+data_clocks_L<-cbind(Input_prot_clocks_all_age_sex, Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
+data_clocks_L$Organ<-"Tanaka"
+
+data_clocks_L<-data_clocks_L[id_order,]
+
+data_clocks_new<-rbind(data_clocks_new, data_clocks_L)
 
 Predicted_Age<-SathAge
 cor.test(Predicted_Age, Input_prot_clocks_all_age_sex$Age)
@@ -1535,14 +1549,14 @@ AgeGap_zscored<-scale(AgeGap)
 data_clocks_L<-cbind(Input_prot_clocks_all_age_sex, Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
 data_clocks_L$Organ<-"Sathyan"
 
-id_order<-match(data_clocks_new$ID[data_clocks_new$Organ=="Conventional"], data_clocks_L$ID)
 data_clocks_L<-data_clocks_L[id_order,]
 
 data_clocks_new<-rbind(data_clocks_new, data_clocks_L)
 
+remove(data_clocks_L)
 
-######Calculate Consensus age ### "renamed "Global" in publication
-clock_names=c("Conventional","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan")
+######Calculate Global age #### 
+clock_names=c("Oh","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan")
 
 Predicted_Age<-(data_clocks_new$Predicted_Age[which(data_clocks_new$Organ==clock_names[1])]+
                   data_clocks_new$Predicted_Age[which(data_clocks_new$Organ==clock_names[14])]+
@@ -1557,11 +1571,12 @@ AgeGap<-(data_clocks_new$AgeGap[which(data_clocks_new$Organ==clock_names[1])]+
            data_clocks_new$AgeGap[which(data_clocks_new$Organ==clock_names[17])])/5
 AgeGap_zscored<-scale(AgeGap)
 
-data_clocks_L<-cbind(Input_prot_clocks_all_age_sex[id_order,], Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
-data_clocks_L$Organ<-"Consensus"
+data_clocks_L<-cbind(data_clocks_new[which(data_clocks_new$Organ==clock_names[1]),1:5], Predicted_Age,yhat_lowess,AgeGap,AgeGap_zscored)
+data_clocks_L$Organ<-"Global"
 cor.test(data_clocks_L$Age, data_clocks_L$Predicted_Age)
 
 data_clocks_new<-rbind(data_clocks_new, data_clocks_L)
+
 
 ############
 
