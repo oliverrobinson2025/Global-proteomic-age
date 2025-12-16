@@ -49,7 +49,7 @@ data_clocks=read.csv("output/data_clocks_new.csv")
 
 ###########
 
-clock_names=c("Conventional","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Consensus")
+clock_names=c("Oh","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Global")
 
 
 
@@ -108,15 +108,13 @@ for(riskfactor in riskfactors){
   
 
 ############figures
-conventclocks<-c("Tanaka","Lehallier", "Sathyan","Conventional","Wang", "Consensus")
+conventclocks<-c("Tanaka","Lehallier", "Sathyan","Oh","Wang", "Global")
 library(forestplot)
 
 riskfactor="hli_score.sc"
 plottable=RF_results[[riskfactor]]
 plottable=plottable[plottable$Clock %in% conventclocks,]
 plottable=plottable[match(conventclocks,plottable$Clock ),]
-plottable$Clock[plottable$Clock=="Conventional"] <-"Oh"
-plottable$Clock[plottable$Clock=="Consensus"] <-"Global"
 
 pdf(file=paste0("/data/Epic/subprojects/Somalogic/work/Oliver/output/for_export/figures/HLi_con_clocks.pdf"), height=10, width =12)
 forestplot(plottable$Clock, #cbind(plottable$Clock, paste("p=",signif(plottable$pval,2))  )
@@ -145,7 +143,7 @@ for(i in 2:length(riskfactors)){
 rownames(rfheatmap)<-clock_names
 names(rfheatmap)<-c("Alcohol consumption", "BMI" ,  "Current smoker",  "Physical activity (METs)" ,  "Healthy diet score" , "High education level") 
 rfheatmap<- rfheatmap[conventclocks,]
-rownames(rfheatmap)<-c("Tanaka","Lehallier", "Sathyan","Oh","Wang", "Global")
+rownames(rfheatmap)<-conventclocks
 
 rfheatmappval<- RF_results_adj[[riskfactors[1]]]
 rfheatmappval<-rfheatmappval["pval"]
@@ -179,7 +177,7 @@ pheatmap(t(rfheatmap),  cluster_rows=F, cluster_cols=F,display_numbers = t(star)
          color = colorRampPalette(c("navy", "white", "firebrick3"))(50))
 dev.off()
 
-####categorical risk factors
+####categorical risk factors#####
 riskfactors.f=c("hli_dietscore_c.f", "hli_smoke.f", "hli_alcohol.f"  ,"hli_bmic.f" ,  "hli_pamets.f"  , "hli_score.q")          
 covs<-c("age_blood","center", "female")
 
@@ -247,7 +245,7 @@ riskfactornames= c("Healthy Diet Score", "Smoking Status" , "Alcohol Consumption
 i=6 
 riskfactor=riskfactors.f[i]
 plottable=RF_results.f[[riskfactor]]
-plottable=plottable[plottable$Clock == "Consensus",]
+plottable=plottable[plottable$Clock == clockname,]
 
 riskfactor
 catnames<-levels(db$hli_score.q)#change manually for each plot
@@ -268,16 +266,16 @@ table(db$cntr_f)
 db$cntr_f<-droplevels(db$cntr_f)
 table(db$country)
 db$country<-droplevels(db$country)
-db$cvd_fut<-db$age_exit_cvd_1-db$age_blood
+db$cvd_fut<-db$age_exit_cvd_1-db$age_recr
 summary(db$cvd_fut)
 label(db$cvd_fut) <- "Follow up time CVD (yrs)"
-db$death_fut<-db$age_exit_death-db$age_blood
+db$death_fut<-db$age_exit_death-db$age_recr
 summary(db$death_fut)
 label(db$death_fut) <- "Follow up time deaths (yrs)"
-db$cancer_fut<-db$age_exit_cancer_1st-db$age_blood
+db$cancer_fut<-db$age_exit_cancer_1st-db$age_recr
 summary(db$cancer_fut)
 label(db$cancer_fut) <- "Follow up time cancer (yrs)"
-db$t2d_fut<-db$age_exit_t2d-db$age_blood
+db$t2d_fut<-db$age_exit_t2d-db$age_recr
 summary(db$t2d_fut)
 label(db$t2d_fut) <- "Follow up time type 2 diabetes (yrs)"
 db$l_school[db$l_school=="Not specified"]<-NA
