@@ -36,32 +36,26 @@ db<-merge(db, imputedcovarites, all.x=T, by= "idepic")
 setwd("/data/Epic/subprojects/Somalogic/work/Oliver")
 data_clocks=read.csv("output/data_clocks_new.csv")
 
+clock_names=c("Oh","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Global")
 
 
-####look at followup time for exclusion
-hist(db$cvd_fut[db$cvd_1_status==1])
-db$pre_5_year<-ifelse(db$cvd_fut <= 5,1,0)
-boxplot(db$cvd_fut~db$pre_5_year )
-table(db$cvd_1_status,db$pre_5_year )
-
-db$pre_2_year<-ifelse(db$cvd_fut <= 2,1,0)
-boxplot(db$cvd_fut~db$pre_2_year )
-table(db$cvd_1_status,db$pre_2_year )
 #################
-#################
-
-clock_names=c("Conventional","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Consensus")
 
 ## Cox cvd
 
-#db1<-db[db$cvd_t2d_coh==0 & db$cvd_1_status==1,]
-#db1$age_recr <- db1$age_exit_cvd_1 - 1e-4 #prentice weights
-#db2<-db[db$cvd_t2d_coh==1 & db$cvd_1_status==1,]
-#db3<-db[db$cvd_t2d_coh==1 & db$cvd_1_status==0,]
-#db.spec=rbind(db1,db2,db3)
-#remove(db1,db2,db3)
+###Prentice weighting for main analysis#######
+db1<-db[db$cvd_t2d_coh==0 & db$cvd_1_status==1,]
+db1$age_recr <- db1$age_exit_cvd_1 - 1e-4 #prentice weights
+db2<-db[db$cvd_t2d_coh==1 & db$cvd_1_status==1,]
+db3<-db[db$cvd_t2d_coh==1 & db$cvd_1_status==0,]
+db.spec=rbind(db1,db2,db3)
+remove(db1,db2,db3)
 
-#exclude pre 5/2 year#######
+###run below instead for sensitivity analysis excluding first 5/2 years of events#
+####look at followup time for exclusion
+#db$cvd_fut<-db$age_exit_cvd_1-db$age_blood
+#db$pre_5_year<-ifelse(db$cvd_fut <= 5,1,0)
+#db$pre_2_year<-ifelse(db$cvd_fut <= 2,1,0)
 
 #dba<-db[db$cvd_1_status==1,]
 ##dba<-dba[dba$pre_5_year==0,]
@@ -80,12 +74,7 @@ clock_names=c("Conventional","Organismal","Brain","Adipose", "Artery", "Immune",
 
 ## Cox cvd
 
-db1<-db[db$cvd_t2d_coh==0 & db$cvd_1_status==1,]
-db1$age_recr <- db1$age_exit_cvd_1 - 1e-4 #prentice weights
-db2<-db[db$cvd_t2d_coh==1 & db$cvd_1_status==1,]
-db3<-db[db$cvd_t2d_coh==1 & db$cvd_1_status==0,]
-db.spec=rbind(db1,db2,db3)
-remove(db1,db2,db3)
+
 #################################
 
 Res_cvd <- tibble(Clock = character(), beta = numeric(), Asso = numeric(), pval = numeric(),
@@ -194,16 +183,8 @@ Res_cvd_imp <- Res_cvd_imp %>% mutate(FDR = p.adjust(pval, method = "BH"))
 
 
 ## Cox chd#################
-####look at followup time for exclusion
-hist(db$chd_fut[db$chd_1_status==1])
-db$pre_5_year<-ifelse(db$chd_fut <= 5,1,0)
-boxplot(db$chd_fut~db$pre_5_year )
-table(db$chd_1_status,db$pre_5_year )
 
-db$pre_2_year<-ifelse(db$chd_fut <= 2,1,0)
-boxplot(db$chd_fut~db$pre_2_year )
-table(db$chd_1_status,db$pre_2_year )
-##########
+########## prentice weighting for main analysis
 
 db1<-db[db$cvd_t2d_coh==0 & db$chd_1_status==1,]
 db1$age_recr <- db1$age_exit_chd_1 - 1e-4
@@ -212,7 +193,10 @@ db3<-db[db$cvd_t2d_coh==1 & db$chd_1_status==0,]
 db.spec=rbind(db1,db2,db3)
 remove(db1,db2,db3)
 
-#############exclude pre 5 or yr
+#############exclude pre 5 or 2 yr as sensitivity analysis####
+#db$chd_fut<-db$age_exit_chd_1-db$age_blood
+#db$pre_5_year<-ifelse(db$chd_fut <= 5,1,0)
+#db$pre_2_year<-ifelse(db$chd_fut <= 2,1,0)
 #dba<-db[db$chd_1_status==1,]
 ##dba<-dba[dba$pre_5_year==0,]
 #dba<-dba[dba$pre_2_year==0,]
@@ -336,16 +320,8 @@ Res_chd_imp <- Res_chd_imp %>% mutate(FDR = p.adjust(pval, method = "BH"))
 
 
 ## Cox stroke
-####look at followup time for exclusion
-hist(db$stroke_fut[db$stroke_1_status==1])
-db$pre_5_year<-ifelse(db$stroke_fut <= 5,1,0)
-boxplot(db$stroke_fut~db$pre_5_year )
-table(db$stroke_1_status,db$pre_5_year )
 
-db$pre_2_year<-ifelse(db$stroke_fut <= 2,1,0)
-boxplot(db$stroke_fut~db$pre_2_year )
-table(db$stroke_1_status,db$pre_2_year )
-##########
+##########Prentice weighting for main analysis
 
 db1<-db[db$cvd_t2d_coh==0 & db$stroke_1_status==1,]
 db1$age_recr <- db1$age_exit_stroke_1 - 1e-4
@@ -354,7 +330,10 @@ db3<-db[db$cvd_t2d_coh==1 & db$stroke_1_status==0,]
 db.spec=rbind(db1,db2,db3)
 remove(db1,db2,db3)
 
-###exlu pre 5 year
+###exlu pre 5 or 2 year events for sensitivity analysis####
+#db$stroke_fut<-db$age_exit_stroke_1-db$age_blood
+#db$pre_5_year<-ifelse(db$stroke_fut <= 5,1,0)
+#db$pre_2_year<-ifelse(db$stroke_fut <= 2,1,0)
 #dba<-db[db$stroke_1_status==1,]
 ##dba<-dba[dba$pre_5_year==0,]
 #dba<-dba[dba$pre_2_year==0,]
