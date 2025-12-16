@@ -16,7 +16,7 @@ remotes::install_github("privefl/bigutilsr")
 library(bigutilsr) ### for the detection of outliers based on local outlier factor and Tukey's rule (see https://privefl.github.io/blog/detecting-outlier-samples-in-pca/)
 
 
-#import co variate data
+####import co variate data ####
 pathWD <- "work/Vivian/MultiEndpoints"
 is_seq <- function(.x) grepl("^seq\\.[0-9]{4}", .x) # regex for analytes
 
@@ -24,7 +24,7 @@ is_seq <- function(.x) grepl("^seq\\.[0-9]{4}", .x) # regex for analytes
 mm0       <- read_sas(data_file= "/data/Epic/subprojects/Somalogic/sources/Epi_Data/somalogic_2023.sas7bdat",
                       catalog_file="/data/Epic/subprojects/Somalogic/sources/Epi_Data/formats.sas7bcat")
 
-##### import somalogic data
+##### import somalogic data ####
 suff0      <-".hybNorm.medNormInt.plateScale.calibrate.anmlQC.qcCheck.anmlSMP"
 suff1      <-".hybNorm.medNormInt.plateScale.calibration.anmlQC.qcCheck.anmlSMP"# ".hybNorm.medNormInt.plateScale.calibrate.anmlQC.qcCheck" #   
 
@@ -44,13 +44,13 @@ names(soma_all) <- tolower(names(soma_all))
 
 table(soma_all$sampletype)
 
-######## display
+######## display #####
 
 
 soma_adat[1:5,1:5]
 
 
-#### Exclusion of "flagged" samples (those for which the normalization scaling factors are not within the acceptable range) 
+#### Exclusion of "flagged" samples (those for which the normalization scaling factors are not within the acceptable range) #####
 #### and exclusion of the Somalogic inhouse QCs, Cals, and EPIC QCs (QC#A1)
 FlaggedToEliminate        <- soma_adat %>% filter(RowCheck =="FLAG") %>% select(SubjectID) %>% pull 
 soma_adat                 <- soma_adat %>% filter(RowCheck !="FLAG")
@@ -68,7 +68,7 @@ soma_adat <- soma_adat %>% slice(-which(llof > tukey_mc_up(llof)))
 Eliminated               <- list(Flagged  = FlaggedToEliminate, ##no SMP24 24 SMP 247 247
                                  Outliers = OutliersToEliminate) ##no SMP15 16 SMP 9 9
 
-#####prepare protein and covariate data as specified for organ age package
+#####prepare protein and covariate data as specified for organ age package####
 
 overlap<-intersect(mm0$Idepic_Aliq, soma_adat$SubjectID)
 
@@ -103,7 +103,7 @@ l=lapply(soma_all, is.labelled)
 l
 
 soma_all %>% 
-  select(idepic,subjectid,age_recr,sex) %>% 
+  select(idepic,subjectid,age_blood,sex) %>% 
   mutate(Sex_F=ifelse(sex==2,1,0)) -> Input_prot_clocks_age_sex
 
 colnames(Input_prot_clocks_age_sex)=c("idepic","ID","Age","sex","Sex_F")
@@ -112,7 +112,7 @@ table(Input_prot_clocks_age_sex$Sex_F)
 
 write.csv(Input_prot_clocks_age_sex,"Input_prot_clocks_all_age_sex.csv",row.names = F)
 
-##prepare lifted 5K protein data for other clocks
+##prepare lifted 5K protein data for other clocks####
 ####lift version to 5k version##
 is_intact_attr(soma_adat)
 attr(soma_adat, "Header.Meta")$HEADER$StudyMatrix |> as.character()
