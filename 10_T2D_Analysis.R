@@ -39,21 +39,11 @@ db<-merge(db, imputedcovarites, all.x=T, by= "idepic")
 
 data_clocks=read.csv("output/data_clocks_new.csv")
 
-
-
-clock_names=c("Conventional","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Consensus")
+clock_names=c("Oh","Organismal","Brain","Adipose", "Artery", "Immune","Heart","Intestine","Kidney","Liver","Lung","Muscle","Pancreas","Lehallier","Tanaka", "Wang", "Sathyan", "Global")
 
 ## Cox t2d
-####look at followup time for exclusion
-hist(db$t2d_fut[db$t2d_status==1])
-db$pre_5_year<-ifelse(db$t2d_fut <= 5,1,0)
-boxplot(db$t2d_fut~db$pre_5_year )
-table(db$t2d_status,db$pre_5_year )
 
-db$pre_2_year<-ifelse(db$t2d_fut <= 2,1,0)
-boxplot(db$t2d_fut~db$pre_2_year )
-table(db$t2d_status,db$pre_2_year )
-##########
+##########Prentice weighting for main analysis####
 
 db1<-db[db$cvd_t2d_coh==0 & db$t2d_status==1,]
 db1$age_recr <- db1$age_exit_t2d - 1e-4 #only for Prentice weighting
@@ -62,7 +52,10 @@ db3<-db[db$cvd_t2d_coh==1 & db$t2d_status==0,]
 db.spec=rbind(db1,db2,db3)
 remove(db1,db2,db3)
 
-###for exclude pre5 /2 years
+###for exclude first  /2 years in sensitivity analysis only###
+#db$t2d_fut<-db$age_exit_t2d-db$age_recr
+#db$pre_5_year<-ifelse(db$t2d_fut <= 5,1,0)
+#db$pre_2_year<-ifelse(db$t2d_fut <= 2,1,0)
 #dba<-db[db$t2d_status==1,]
 ##dba<-dba[dba$pre_5_year==0,]
 #dba<-dba[dba$pre_2_year==0,]
@@ -79,7 +72,7 @@ remove(db1,db2,db3)
 
 ################################
 
-db.spec=db.spec[db.spec$t2d_prev==0,]### exclude prevalent T2d
+db.spec=db.spec[db.spec$t2d_prev==0,]### exclude prevalent T2d cases
 
 Res_t2d <- tibble(Clock = character(), beta = numeric(), Asso = numeric(), pval = numeric(),
                   SE = numeric(),LCL = numeric(),UCL = numeric(),n = numeric(), nevent = numeric())
@@ -204,7 +197,7 @@ table(db$cntr_f)
 db$cntr_f<-droplevels(db$cntr_f)
 table(db$country)
 db$country<-droplevels(db$country)
-db$t2d_fut<-db$age_exit_t2d-db$age_blood
+db$t2d_fut<-db$age_exit_t2d-db$age_recr
 summary(db$t2d_fut)
 label(db$t2d_fut) <- "Follow up time t2d (yrs)"
 db$l_school[db$l_school=="Not specified"]<-NA
